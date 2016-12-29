@@ -5,12 +5,15 @@ package hw
 import (
 	"i2c"
 	"sync"
+	"time"
+	"fmt"
 )
 
 type HW struct {
 	LED* i2c.I2C
 	GPIO* i2c.I2C
 	Lock sync.Mutex
+	ButtonCallback func(irq int, cur int)
 }
 
 
@@ -35,6 +38,7 @@ func NewHW() (*HW, error) {
 	res.LED= led;
 	res.GPIO = gpio
 	res.INIT();
+	go res.ButtonPoller()
 	return &res, nil
 }
 
@@ -49,8 +53,33 @@ func (hw * HW) INIT() {
 	for i := 38; i <= 53; i++ {
 		hw.LED.WriteRegU8(uint8(i), 0)
 	}
+	hw.GPIO.WriteRegU8(0, 0xFF);
+	hw.GPIO.WriteRegU8(1, 0);
+	hw.GPIO.WriteRegU8(2, 0xFF);
+
+	hw.GPIO.WriteRegU8(3, 0xFF)
+	hw.GPIO.WriteRegU8(4, 0xFF)
+	hw.GPIO.WriteRegU8(6, 0xFF)
 }
 
+func (hw * HW) ButtonPoller() {
+	for ;; {
+		time.Sleep(2000 * time.Millisecond);
+		hw.Lock.Lock();
+		irq, _ := hw.GPIO.ReadRegU8(7);
+		//irq = 0xFF ^ irq;
+		callback := hw.ButtonCallback;
+		current, _ := hw.GPIO.ReadRegU8(9)
+		hw.Lock.Unlock()
+
+		if (irq != 0) {
+			if (callback != nil) {
+				callback(int(irq), int(current));
+			}
+			print(fmt.Sprintf("BUTTONS BUTTONS BUTTONS: %v\n", irq));
+		}
+	}
+}
 func (hw * HW) ReadButtons() int {
 	hw.Lock.Lock();
 	defer hw.Lock.Unlock();
