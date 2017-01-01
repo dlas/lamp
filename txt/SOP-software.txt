@@ -1,0 +1,16 @@
+
+
+Base software source is: bone-debian-8.6-lxqt-4gb-armhf-2016-11-06-4gb.img
+Extract this software and 'dd' onto a SDIO card.  Device use DHCP at
+startup to get network access via ethernet. use DHCP logs to find IP 
+address. ssh into dev as user root.
+
+Modifications:
+Add the line
+	cmdline=coherent_pool=1M quiet cape_universal=enable video=HDMI-A-1:1280x720@60e
+to /etc/uEnv.txt (replacing the old cmdline). This fixes audio issues
+
+Note, the base OS omits support for analog in (unused in this code).
+Instructions to fix are at:
+https://gist.github.com/matthewmcneely/bf44655c74096ff96475
+

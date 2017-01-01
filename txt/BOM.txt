@@ -1,0 +1,57 @@
+
+LEGEND
+	[blank]	off-the-shelf component
+	[F] [external custom fabrication]
+	[I] [internal fabrication]
+
+1 I Base unit
+	1 I Compute unit
+		1 Beagle Bone Black https://www.amazon.com/Beagleboard-BeagleBone-Black-Beaglebone-Devkit/dp/B00K7EEX2U?th=1
+		1 4GB sd card https://www.amazon.com/Sandisk-MicroSDHC-Memory-Card-Adapter/dp/B000SMVQK8/ref=sr_1_1?s=pc&ie=UTF8&qid=1483231105&sr=1-1&keywords=4gb+micro+sd+card
+	1 I Custom PCB assembly
+		1 F PCB lamp/electronics/lights.pcb
+		see E-BOM.txt for PCB component parts list
+	1 I Case, heatsink, mounting HW kit
+		1 I  drilled and tapped Aluminum right angle bracket, 3/16"x3"x"3"6". hardware/?????
+		10 4-40x0.25" screws 92196A106	
+		6 TO-220 thermal pads BER167-ND
+		6 TO-220 washers RP338-ND
+		4 4-40x0.5" nylon standoffs
+		4 4-40 nylon washers 36-3348-ND
+	1 I Speaker assembly kit
+		1 Speaker 668-1125-ND
+		1 I Speaker wiring harness
+			1 (each) red, black wire
+			1 2 pin molex housing
+			2 molex crimp ends
+		4 1.5" 4-40 nylon  screws 95868A269	
+		12 4-40 nuts 	91841A005	
+		8 4-40 washers 	92141A005	
+1 Power supply 271-2717-ND
+1 I Lamp unit
+	8 F Lamp shade panels  lamp/hardware/panel.step
+	8 F Lamp shade panel joints lamp/hardware/bracket.step
+	1 I LED and base unit assembly
+		4 powre LEDs https://www.superbrightleds.com/moreinfo/high-powered/vollong-3w-rgb-high-power-led/899/2214/
+		1 F Heat sink and structural base lamp/hardware/base.step
+		1 Thermal paste
+		1 91C temperature cutout 317-1127-ND
+		2 (each) length of red/green/blue wire
+		1 (suspended version only) 8 Pin circular connector CP-1238-ND
+	40 6-32x3/8"  hex screws 92196A146	
+	16 6-32 nut 91841A007
+	16 6-32 washer 92141A008	
+
+
+1 I Lamp suspension kit
+	2 120CM 1/16" stranded steel cable 3450T24	
+	2 Cable crimps 3898T32
+	1 washer, 1" 3769T72	
+	
+1 Lamp to base cable
+	1 2M length of cat5 ethernet
+	1 Circle connector male housing CP-1038-ND
+	1 Molex housing
+	8 molex crimps
+
+
