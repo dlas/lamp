@@ -27,6 +27,7 @@ D5	Red
 J1		
 J2		
 J3		
+J4		
 L1	22uH	
 P9		
 Q1	TIP41	
@@ -71,7 +72,6 @@ R33	1K
 SW1		
 SW2	On	
 SW3	Off/Cancel	
-SW4	(omit)	
 U1	PCA9685	
 U2	MCP23008-tssop	
 U3	LM324	
@@ -79,3 +79,4 @@ U4	LM324
 U5	LM7805	
 U6	CS4270	
 U7	LM4875	
+
