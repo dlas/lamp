@@ -1,0 +1,61 @@
+
+
+This document specifies the specifics of the hardware/software interface.
+
+Lights:
+	We expose a PCA9685 chip on I2C port #2 at address 65.
+
+	Datasheet: [http://www.nxp.com/documents/data_sheet/PCA9685.pdf]
+
+	The chip is wired to the LED amplifiers as an open-collector sink;
+	pulling a line LOW turns the LED OFF. So, it should be operated in
+	open-collector, non-inverting mode.  However, the status LEDs 
+	light when a line is pulled LOW; therefore software must invert
+	output to the status LEDs.
+
+	The outputs are wired as followed
+
+	LED0	unused
+	LED1	Red
+	LED2	Green
+	LED3	Blue
+	LED4..7 unused
+	LED8	status led: system good
+	LED9	status led: alarm is armed
+	LED10	status led: ???
+	LED11	status led: fault
+	LED12..15 unused
+
+GPIO:
+	The circuit exposes a MCP23S08 GPIO chip at I2C port 2, address 38.
+
+	Datasheet: [http://ww1.microchip.com/downloads/en/DeviceDoc/21919e.pdf]
+
+	The GPIO chip connects to three on-board switches and has two external
+	pins.  The switches short to ground when pressed; they should be
+	configured as inputs with the pullup resistor enabled.  They will
+	read as "1" normally and "0" when depressed. 
+
+	The two external IO pins may be used as input or output in any configuration.
+
+	GPIO0	SW3 	Preset
+	GPIO1	SW2	Intensity
+	GPIO2	SW1	Arm/disarm alarm
+	GPIO3	J4/pin3
+	GPIO4	J4/pin2
+	GPIO5..7 unused
+
+AUDIO:
+	The circuit exposes a CS4270 audio codec on the I2S lines of the BBB.
+	
+	Datasheet: [https://www.cirrus.com/en/pubs/proDatasheet/CS4270_F1.pdf]
+
+	The I2C/SPI configuration mechanism is unused and the chip is
+	pin-strapped into a static configuration. The chip is configured to
+	operate in single-speed (4-54KHZ) with a MCLK to LRCK ratio of 512.
+	The beaglebone fixes the master clock to 24576000 so the chip will only
+	play audio at 48KHZ.
+
+	ALSA does not correctly detect this situation so you must manually specify
+	a bit rate. For example: 
+		mplayer -srate 48000 music.mp3
