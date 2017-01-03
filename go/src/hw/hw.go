@@ -22,6 +22,10 @@ const CAL_SYNC_LED=2
 const CAL_ARMED_LED=3
 const ERROR_LED=4
 
+const BUTTON_TOGGLE_LIGHTS= 1
+const BUTTON_LIGHTING_MODE = 2
+const BUTTON_TOGGLE_ALARM = 4
+
 func NewHW() (*HW, error) {
 	led, err:= i2c.NewI2C(65, 2);
 	if (err != nil) {
@@ -44,7 +48,7 @@ func NewHW() (*HW, error) {
 
 func (hw * HW) INIT() {
 	hw.LED.WriteRegU8(0, 0);
-	hw.LED.WriteRegU8(1, 4);
+	hw.LED.WriteRegU8(1, 0);
 	for i := 9; i <= 21; i++ {
 
 		hw.LED.WriteRegU8(uint8(i), 0);
@@ -80,6 +84,8 @@ func (hw * HW) ButtonPoller() {
 		}
 	}
 }
+
+
 func (hw * HW) ReadButtons() int {
 	hw.Lock.Lock();
 	defer hw.Lock.Unlock();
@@ -108,4 +114,7 @@ func (hw * HW) SetStatus(status int, value bool) {
 	hw.LED.WriteRegU8(uint8(reg), uint8(val));
 }
 
+func (hw *HW) RegisterButtonCallback(c func(irq int, cur int)) {
+	hw.ButtonCallback = c;
+}
 

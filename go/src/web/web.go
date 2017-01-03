@@ -53,7 +53,7 @@ func (ws * WebState) APISetLights(w http.ResponseWriter, r *http.Request) {
 	red, _ := strconv.Atoi(q.Get("red"))
 	green, _ := strconv.Atoi(q.Get("green"))
 	blue, _ := strconv.Atoi(q.Get("blue"))
-	ws.Hw.SetLEDs(red, green, blue)
+	ws.Alarm.UIChangeLights(red, green, blue)
 
 }
 

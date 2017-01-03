@@ -10,8 +10,8 @@ import "web"
 
 func main() {
 	h, _ := hw.NewHW();
-	a := alarm.NewAlarm(h);
 	c := config.LoadConfig();
+	a := alarm.NewAlarm(h, c);
 
 	var w web.WebState;
 	w.Hw = h;
