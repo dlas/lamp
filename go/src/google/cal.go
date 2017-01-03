@@ -149,7 +149,7 @@ func (cs *CalendarState) GetEvents() {
   events, err := srv.Events.List("primary").ShowDeleted(false).
     SingleEvents(true).TimeMin(t).MaxResults(10).OrderBy("startTime").Do()
     log.Printf("EV: %v ERR: %v", events, err);
-    
+
 
 }
 
