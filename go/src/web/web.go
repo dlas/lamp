@@ -11,12 +11,13 @@ import (
 	"alarm"
 	"github.com/Joker/jade"
 	"strconv"
+	"log"
 
 )
 
 type WebState struct {
 	Config *config.Config
-	Hw * hw.HW
+	Hw hw.HWInterface
 	Alarm *alarm.Alarm
 	Webroot string
 }
@@ -29,6 +30,7 @@ func StartServer( w *WebState) {
 	sm.HandleFunc("/resources/", w.ResourceHandler);
 
 	sm.HandleFunc("/api/setlights", w.APISetLights);
+	sm.HandleFunc("/api/setoauth", w.APISetOauth)
 
 	http.ListenAndServe(":9090", sm);
 
@@ -66,3 +68,10 @@ func (ws * WebState) APISetLights(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func (ws * WebState) APISetOauth(w http.ResponseWriter, r *http.Request) {
+	q := r.URL.Query();
+	log.Printf("DO IT: %v", q);
+	code := q.Get("oauth")
+	ws.Config.GoogleAuth = []byte(code)
+	config.SaveConfig(ws.Config);
+}

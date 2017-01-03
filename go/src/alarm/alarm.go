@@ -13,13 +13,13 @@ type Alarm struct {
 	AlarmIsSet bool
 	Aborting bool
 	AlarmIsActive bool
-	LEDs *hw.HW
+	LEDs hw.HWInterface
 	Lock sync.Mutex
 	UI UIState
 	Config *config.Config
 }
 
-func NewAlarm(h *hw.HW, c * config.Config) *Alarm {
+func NewAlarm(h hw.HWInterface, c * config.Config) *Alarm {
 	var a Alarm;
 	if (c == nil) {
 		c = config.LoadConfig();

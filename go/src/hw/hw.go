@@ -16,6 +16,20 @@ type HW struct {
 	ButtonCallback func(irq int, cur int)
 }
 
+type NullHW struct {
+
+}
+
+type HWInterface interface {
+	SetLEDs(r, g, b int)
+	SetStatus(status int, value bool)
+	RegisterButtonCallback(c func(irq int, cur int))
+}
+
+func (x * NullHW) SetLEDs(r,g,b int){}
+func (x * NullHW) SetStatus(s int, v bool) {}
+func (x * NullHW) RegisterButtonCallback(c func(irq int, cur int)) {}
+
 
 const SOFTWARE_ALIVE_LED = 1
 const CAL_SYNC_LED=2
@@ -26,15 +40,15 @@ const BUTTON_TOGGLE_LIGHTS= 1
 const BUTTON_LIGHTING_MODE = 2
 const BUTTON_TOGGLE_ALARM = 4
 
-func NewHW() (*HW, error) {
+func NewHW() (HWInterface, error) {
 	led, err:= i2c.NewI2C(65, 2);
 	if (err != nil) {
-		return nil, err;
+		return &NullHW{}, err;
 	}
 
 	gpio, err := i2c.NewI2C(38, 2);
 	if (err != nil) {
-		return nil, err;
+		return &NullHW{}, err;
 	}
 
 	
@@ -65,7 +79,6 @@ func (hw * HW) INIT() {
 	hw.GPIO.WriteRegU8(4, 0xFF)
 	hw.GPIO.WriteRegU8(6, 0xFF)
 }
-
 func (hw * HW) ButtonPoller() {
 	for ;; {
 		time.Sleep(2000 * time.Millisecond);

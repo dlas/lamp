@@ -7,11 +7,21 @@ html
 		p Hello world
 		h2 Big
 		form
+			span Red
 			input(type="text" name="red" id="red")
 			br
+			span Green
 			input(type="text" name="green" id="green")
 			br
+			span Blue
 			input(type="text" name="blue" id="blue")
 			br
 			div(onclick="setlights()") clickme
+		hr
+		form
+			span google oauth secret
+			input(type="text" name="oath" id="oauth")
+			div(onclick="setoauth()") clickme
+		
+			
 
