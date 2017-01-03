@@ -31,3 +31,12 @@ function setlights() {
 
 	$.get(url)
 }
+
+function authlink() {
+	$.get("/api/getoauth?", function(data) {
+
+		console.log(data)
+		$("#authlink").attr("href", data);
+	})
+}
+

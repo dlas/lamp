@@ -38,6 +38,7 @@ func LoadConfig() *Config{
 	if (err == nil) {
 		err = json.Unmarshal(buf, &c);
 		if (err == nil) {
+			c.GoogleSecret, _ = ioutil.ReadFile("client_secret.json");
 			log.Printf("RECOVER: %v", c);
 			return &c
 		}

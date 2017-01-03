@@ -12,6 +12,7 @@ import (
 	"github.com/Joker/jade"
 	"strconv"
 	"log"
+	"google"
 
 )
 
@@ -19,6 +20,7 @@ type WebState struct {
 	Config *config.Config
 	Hw hw.HWInterface
 	Alarm *alarm.Alarm
+	GCal *google.CalendarState
 	Webroot string
 }
 
@@ -31,6 +33,8 @@ func StartServer( w *WebState) {
 
 	sm.HandleFunc("/api/setlights", w.APISetLights);
 	sm.HandleFunc("/api/setoauth", w.APISetOauth)
+	sm.HandleFunc("/api/test", w.Test);
+	sm.HandleFunc("/api/getoauth", w.APIGetAuthLink);
 
 	http.ListenAndServe(":9090", sm);
 
@@ -72,6 +76,22 @@ func (ws * WebState) APISetOauth(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query();
 	log.Printf("DO IT: %v", q);
 	code := q.Get("oauth")
-	ws.Config.GoogleAuth = []byte(code)
+	
+	token := ws.GCal.AuthCallback(code);
+
+	ws.Config.GoogleAuth = token
 	config.SaveConfig(ws.Config);
+	w.Write([]byte("OK"));
+}
+
+
+func (ws * WebState) Test(w http.ResponseWriter, r *http.Request) {
+
+	ws.GCal.GetEvents();
+}
+func (ws * WebState) APIGetAuthLink(w http.ResponseWriter, r *http.Request) {
+
+	u := ws.GCal.GetAuthURL();
+
+	w.Write([]byte(u))
 }

@@ -6,6 +6,7 @@ import "alarm"
 import "config"
 import "hw"
 import "web"
+import "google"
 
 
 func main() {
@@ -18,6 +19,7 @@ func main() {
 	w.Alarm = a;
 	w.Config = c;
 	w.Webroot=os.Getenv("WEBROOT");
+	w.GCal = google.NewCS(c);
 
 	web.StartServer(&w);
 	x := make(chan bool);
