@@ -26,6 +26,8 @@ func StartServer( w *WebState) {
 	sm := http.NewServeMux();
 	sm.HandleFunc("/", w.MainPage);
 	sm.HandleFunc("/views/", w.ViewHandler);
+	sm.HandleFunc("/resources/", w.ResourceHandler);
+
 	sm.HandleFunc("/api/setlights", w.APISetLights);
 
 	http.ListenAndServe(":9090", sm);
@@ -34,9 +36,16 @@ func StartServer( w *WebState) {
 }
 
 
+func (ws * WebState) ResourceHandler(w http.ResponseWriter, r *http.Request) {
+	file := path.Base(r.URL.Path);
+	data, _ := ioutil.ReadFile(path.Join(ws.Webroot, "resources", file));
+	w.Write(data)
+
+}
+
 func (ws * WebState) ViewHandler(w http.ResponseWriter, r *http.Request) {
 	file := path.Base(r.URL.Path)
-	data, _:= ioutil.ReadFile(path.Join(ws.Webroot,file));
+	data, _:= ioutil.ReadFile(path.Join(ws.Webroot,"views",file));
 
 	output, _:= jade.Parse(file, string(data));
 
