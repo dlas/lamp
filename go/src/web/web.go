@@ -1,69 +1,79 @@
-
+/* Implement a web service. Features
+ * Manage google calendar authorization
+ * Customize presets
+ * Just change the lights to some setting now.
+ */
 
 package web
 
 import "net/http"
 import (
-	"path"
-	"io/ioutil"
-	"config"
-	"hw"
 	"alarm"
+	"config"
 	"github.com/Joker/jade"
-	"strconv"
-	"log"
 	"google"
-
+	"hw"
+	"io/ioutil"
+	"log"
+	"path"
+	"strconv"
 )
+
+/* What state do we care about? This is pretty much the entire application. */
 
 type WebState struct {
 	Config *config.Config
-	Hw hw.HWInterface
-	Alarm *alarm.Alarm
-	GCal *google.CalendarState
+	Hw     hw.HWInterface
+	Alarm  *alarm.Alarm
+	GCal   *google.CalendarState
+
+	/* What directory do our web resouces live in?
+		 * We expect the subdirectory "views" to contain jade files
+	       * and the subdirectory "resources" to contain scripts, etc.
+	*/
 	Webroot string
 }
 
-func StartServer( w *WebState) {
+func StartServer(w *WebState) {
 
-	sm := http.NewServeMux();
-	sm.HandleFunc("/", w.MainPage);
-	sm.HandleFunc("/views/", w.ViewHandler);
-	sm.HandleFunc("/resources/", w.ResourceHandler);
+	sm := http.NewServeMux()
+	sm.HandleFunc("/", w.MainPage)
+	sm.HandleFunc("/views/", w.ViewHandler)
+	sm.HandleFunc("/resources/", w.ResourceHandler)
 
-	sm.HandleFunc("/api/setlights", w.APISetLights);
+	sm.HandleFunc("/api/setlights", w.APISetLights)
 	sm.HandleFunc("/api/setoauth", w.APISetOauth)
-	sm.HandleFunc("/api/test", w.Test);
-	sm.HandleFunc("/api/getoauth", w.APIGetAuthLink);
+	sm.HandleFunc("/api/test", w.Test)
+	sm.HandleFunc("/api/getoauth", w.APIGetAuthLink)
 
-	http.ListenAndServe(":9090", sm);
-
+	http.ListenAndServe(":9090", sm)
 
 }
 
-
-func (ws * WebState) ResourceHandler(w http.ResponseWriter, r *http.Request) {
-	file := path.Base(r.URL.Path);
-	data, _ := ioutil.ReadFile(path.Join(ws.Webroot, "resources", file));
+/* Handle resources. Just return with the raw file */
+func (ws *WebState) ResourceHandler(w http.ResponseWriter, r *http.Request) {
+	file := path.Base(r.URL.Path)
+	data, _ := ioutil.ReadFile(path.Join(ws.Webroot, "resources", file))
 	w.Write(data)
 
 }
 
-func (ws * WebState) ViewHandler(w http.ResponseWriter, r *http.Request) {
+/* Handle views. parse the JADE file and return that */
+func (ws *WebState) ViewHandler(w http.ResponseWriter, r *http.Request) {
 	file := path.Base(r.URL.Path)
-	data, _:= ioutil.ReadFile(path.Join(ws.Webroot,"views",file));
+	data, _ := ioutil.ReadFile(path.Join(ws.Webroot, "views", file))
 
-	output, _:= jade.Parse(file, string(data));
+	output, _ := jade.Parse(file, string(data))
 
 	w.Write([]byte(output))
 }
 
-
-func (ws * WebState) MainPage(w http.ResponseWriter, r *http.Request) {
+func (ws *WebState) MainPage(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Hello World\n"))
 }
 
-func (ws * WebState) APISetLights(w http.ResponseWriter, r *http.Request) {
+/* API to set light intensities */
+func (ws *WebState) APISetLights(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query()
 	red, _ := strconv.Atoi(q.Get("red"))
 	green, _ := strconv.Atoi(q.Get("green"))
@@ -72,26 +82,28 @@ func (ws * WebState) APISetLights(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (ws * WebState) APISetOauth(w http.ResponseWriter, r *http.Request) {
-	q := r.URL.Query();
-	log.Printf("DO IT: %v", q);
+/* API to set complete an OAUTH transaction */
+func (ws *WebState) APISetOauth(w http.ResponseWriter, r *http.Request) {
+	q := r.URL.Query()
+	log.Printf("DO IT: %v", q)
 	code := q.Get("oauth")
-	
-	token := ws.GCal.AuthCallback(code);
+
+	token := ws.GCal.AuthCallback(code)
 
 	ws.Config.GoogleAuth = token
-	config.SaveConfig(ws.Config);
-	w.Write([]byte("OK"));
+	config.SaveConfig(ws.Config)
+	w.Write([]byte("OK"))
 }
 
+func (ws *WebState) Test(w http.ResponseWriter, r *http.Request) {
 
-func (ws * WebState) Test(w http.ResponseWriter, r *http.Request) {
-
-	ws.GCal.GetEvents();
+	ws.GCal.GetEvents()
 }
-func (ws * WebState) APIGetAuthLink(w http.ResponseWriter, r *http.Request) {
 
-	u := ws.GCal.GetAuthURL();
+/* API to get an oauth link */
+func (ws *WebState) APIGetAuthLink(w http.ResponseWriter, r *http.Request) {
+
+	u := ws.GCal.GetAuthURL()
 
 	w.Write([]byte(u))
 }
