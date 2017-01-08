@@ -35,6 +35,8 @@ type HW struct {
 	Lock sync.Mutex
 	/* Callback to call whenever buttons are pressed */
 	ButtonCallback func(irq int, cur int)
+
+	LastButtons uint8
 }
 
 /* Implementation of the null HWInterface */
@@ -45,10 +47,10 @@ func (x *NullHW) SetStatus(s int, v bool)                         {}
 func (x *NullHW) RegisterButtonCallback(c func(irq int, cur int)) {}
 
 /* Definitions! How are things hooked up */
-const SOFTWARE_ALIVE_LED = 1
-const CAL_SYNC_LED = 2
-const CAL_ARMED_LED = 3
-const ERROR_LED = 4
+const SOFTWARE_ALIVE_LED = 0
+const CAL_SYNC_LED = 1
+const CAL_ARMED_LED = 2
+const ERROR_LED = 3
 
 const BUTTON_TOGGLE_LIGHTS = 1
 const BUTTON_LIGHTING_MODE = 2
@@ -116,10 +118,26 @@ func (hw *HW) ButtonPoller() {
 	for {
 		time.Sleep(500 * time.Millisecond)
 		hw.Lock.Lock()
+
+		/* What's going on here?
+		 * We use the IRQ feature of the GPIO chip to find buttons
+		 * who'se state has changed since the last loop. That
+		 * prevents us from missing a trigger if the user doesn't
+		 * hold the button down for 500ms.
+		 *
+		 * However, we only consdier interrupts for buttons that
+		 * were not pressed last time we did this loop. Otherwise, we'd
+		 * keep retriggering the same event.
+		 */
 		/* IRQ status register is 7; current input is 9 */
 		irq, _ := hw.GPIO.ReadRegU8(7)
 		callback := hw.ButtonCallback
 		current, _ := hw.GPIO.ReadRegU8(9)
+
+		/* Ignore interrupts for buttons that were pressed last time
+		 * we did this loop */
+		irq = irq & hw.LastButtons
+		hw.LastButtons = current
 		hw.Lock.Unlock()
 
 		/* Call the callback if an irq happened */
@@ -155,10 +173,10 @@ func (hw *HW) SetLEDs(r, g, b int) {
 
 /* Turn one of the status LEDs on or off */
 func (hw *HW) SetStatus(status int, value bool) {
-	reg := 41 + 4*status
+	reg := 39 + 4*status
 
 	val := 0
-	if value {
+	if !value {
 		val = 16
 	}
 

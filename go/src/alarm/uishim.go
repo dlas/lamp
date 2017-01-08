@@ -105,7 +105,7 @@ func (self *Alarm) ButtonPress(irq int, current int) {
 		}
 
 		if irq&hw.BUTTON_TOGGLE_ALARM != 0 {
-			//self.ForceAlarmOff(!self.UI.ForceAlarmOff)
+			self.ForceAlarmOff(!self.UI.ForceAlarmOff)
 		}
 	}
 }

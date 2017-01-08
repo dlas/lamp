@@ -5,6 +5,7 @@ package google
 import (
 	"config"
 	"encoding/json"
+	"errors"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -89,6 +90,8 @@ func (cs *CalendarState) GetEvents() {
 	log.Printf("EV: %v ERR: %v", events, err)
 }
 
+var CAL_NO_CREDENTIALS = errors.New("Calendar credentials not synced.")
+
 /*
  * Find the next apointment that starts after s and before eAND has a
  * daystar-hour between minwake and maxwake. Return the time for that
@@ -100,7 +103,7 @@ func (cs *CalendarState) GetNextWakeup(s time.Time, e time.Time, minwake int, ma
 
 	/* TODO: Should return an error: calendar not connected at all! */
 	if cs.client == nil {
-		return z, nil
+		return z, CAL_NO_CREDENTIALS
 	}
 
 	/* Download apointments from google */

@@ -58,7 +58,8 @@ func NewAlarm(h hw.HWInterface, cs *google.CalendarState, c *config.Config) *Ala
  * Loop forever, synchronizing our alarm to google calendar
  */
 func (a *Alarm) SyncCalendarLoop() {
-	for {
+	a.LEDs.SetStatus(hw.CAL_SYNC_LED, false)
+	for ; ; time.Sleep(30 * time.Minute) {
 		/* Scan the next 24 hours for a "wakeup" time */
 		now := time.Now().Local()
 		start_scan := now.Add(90 * time.Minute)
@@ -68,8 +69,11 @@ func (a *Alarm) SyncCalendarLoop() {
 
 		if err != nil {
 			log.Printf("ERR::: %v", err)
-			/* TODO: Set bad status */
+			a.LEDs.SetStatus(hw.CAL_SYNC_LED, false)
+			continue
 		}
+
+		a.LEDs.SetStatus(hw.CAL_SYNC_LED, true)
 
 		if wakeup.IsZero() {
 			log.Printf("NO EVENT")
@@ -81,7 +85,6 @@ func (a *Alarm) SyncCalendarLoop() {
 			a.SetAlarm(wakeup_at)
 		}
 
-		time.Sleep(30 * time.Minute)
 	}
 }
 
