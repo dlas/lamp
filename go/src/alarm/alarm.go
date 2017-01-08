@@ -77,7 +77,7 @@ func (a *Alarm) SyncCalendarLoop() {
 
 			wakeup_at := wakeup.Add(-90 * time.Minute)
 			/* Don't re-trigger old stuff */
-			if wakeup_at.After(now) {
+			if !wakeup_at.After(now) {
 				log.Printf("SET ALARM TO: %v (now is: %v)", wakeup_at, now)
 				a.SetAlarm(wakeup_at)
 			}
