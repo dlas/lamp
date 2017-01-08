@@ -98,6 +98,11 @@ func (cs *CalendarState) GetEvents() {
 func (cs *CalendarState) GetNextWakeup(s time.Time, e time.Time, minwake int, maxwake int) (time.Time, error) {
 	var z time.Time
 
+	/* TODO: Should return an error: calendar not connected at all! */
+	if cs.client == nil {
+		return z, nil
+	}
+
 	/* Download apointments from google */
 	google_t := s.Format(time.RFC3339)
 	google_e := e.Format(time.RFC3339)
