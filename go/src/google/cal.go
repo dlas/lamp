@@ -116,6 +116,11 @@ func (cs *CalendarState) GetNextWakeup(s time.Time, e time.Time, minwake int, ma
 		ev := events.Items[i]
 		when := ev.Start.DateTime
 		go_when, err := time.Parse(time.RFC3339, when)
+
+		/* Ignore events that have already started */
+		if !go_when.After(s) {
+			continue
+		}
 		ev_hour := go_when.Hour()
 
 		if err != nil {

@@ -61,9 +61,10 @@ func (a *Alarm) SyncCalendarLoop() {
 	for {
 		/* Scan the next 24 hours for a "wakeup" time */
 		now := time.Now().Local()
-		next := now.Add(24 * time.Hour)
+		start_scan := now.Add(90 * time.Minute)
+		end_scan := start_scan.Add(24 * time.Hour)
 
-		wakeup, err := a.CS.GetNextWakeup(now, next, 0, 10)
+		wakeup, err := a.CS.GetNextWakeup(start_scan, end_scan, 0, 10)
 
 		if err != nil {
 			log.Printf("ERR::: %v", err)
@@ -76,11 +77,8 @@ func (a *Alarm) SyncCalendarLoop() {
 			/* Got it! Schedule an alarm. */
 
 			wakeup_at := wakeup.Add(-90 * time.Minute)
-			/* Don't re-trigger old stuff */
-			if !wakeup_at.After(now) {
-				log.Printf("SET ALARM TO: %v (now is: %v)", wakeup_at, now)
-				a.SetAlarm(wakeup_at)
-			}
+			log.Printf("SET ALARM TO: %v (now is: %v)", wakeup_at, now)
+			a.SetAlarm(wakeup_at)
 		}
 
 		time.Sleep(30 * time.Minute)
