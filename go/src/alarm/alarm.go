@@ -9,6 +9,8 @@ import "hw"
 import "time"
 import "sync"
 import "config"
+import "google"
+import "log"
 
 var AbortWakeUpKey int
 
@@ -22,16 +24,18 @@ type Alarm struct {
 	Lock          sync.Mutex
 	UI            UIState        // see uishim.go
 	Config        *config.Config // All our config info
+	CS            *google.CalendarState
 }
 
 // THis is the main initialization proceedure */
-func NewAlarm(h hw.HWInterface, c *config.Config) *Alarm {
+func NewAlarm(h hw.HWInterface, cs *google.CalendarState, c *config.Config) *Alarm {
 	var a Alarm
 	if c == nil {
 		c = config.LoadConfig()
 	}
 	a.Config = c
 	a.LEDs = h
+	a.CS = cs
 	/* Callback every time a physical button is pressed */
 	h.RegisterButtonCallback(a.ButtonPress)
 
@@ -44,7 +48,43 @@ func NewAlarm(h hw.HWInterface, c *config.Config) *Alarm {
 
 	go a.AlarmLoop()
 	go a.PanicHandler()
+	if cs != nil {
+		go a.SyncCalendarLoop()
+	}
 	return &a
+}
+
+/*
+ * Loop forever, synchronizing our alarm to google calendar
+ */
+func (a *Alarm) SyncCalendarLoop() {
+	for {
+		/* Scan the next 24 hours for a "wakeup" time */
+		now := time.Now().Local()
+		next := now.Add(24 * time.Hour)
+
+		wakeup, err := a.CS.GetNextWakeup(now, next, 0, 10)
+
+		if err != nil {
+			log.Printf("ERR::: %v", err)
+			/* TODO: Set bad status */
+		}
+
+		if wakeup.IsZero() {
+			log.Printf("NO EVENT")
+		} else {
+			/* Got it! Schedule an alarm. */
+
+			wakeup_at := wakeup.Add(-90 * time.Minute)
+			/* Don't re-trigger old stuff */
+			if wakeup_at.After(now) {
+				log.Printf("SET ALARM TO: %v (now is: %v)", wakeup_at, now)
+				a.SetAlarm(wakeup_at)
+			}
+		}
+
+		time.Sleep(30 * time.Minute)
+	}
 }
 
 /* Runs as a goroutine that will turn on the error light if we crash */

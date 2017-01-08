@@ -10,7 +10,6 @@ package i2c
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"syscall"
 )
@@ -69,7 +68,7 @@ func (this *I2C) ReadRegU8(reg byte) (byte, error) {
 	if err != nil {
 		return 0, err
 	}
-	log.Printf("Read U8 %d from reg 0x%0X", buf[0], reg)
+	//log.Printf("Read U8 %d from reg 0x%0X", buf[0], reg)
 	return buf[0], nil
 }
 
@@ -81,7 +80,7 @@ func (this *I2C) WriteRegU8(reg byte, value byte) error {
 	if err != nil {
 		return err
 	}
-	log.Printf("Write U8 %d to reg 0x%0X", value, reg)
+	//log.Printf("Write U8 %d to reg 0x%0X", value, reg)
 	return nil
 }
 
@@ -99,7 +98,7 @@ func (this *I2C) ReadRegU16BE(reg byte) (uint16, error) {
 		return 0, err
 	}
 	w := uint16(buf[0])<<8 + uint16(buf[1])
-	log.Printf("Read U16 %d from reg 0x%0X", w, reg)
+	//log.Printf("Read U16 %d from reg 0x%0X", w, reg)
 	return w, nil
 }
 
@@ -130,7 +129,7 @@ func (this *I2C) ReadRegS16BE(reg byte) (int16, error) {
 		return 0, err
 	}
 	w := int16(buf[0])<<8 + int16(buf[1])
-	log.Printf("Read S16 %d from reg 0x%0X", w, reg)
+	//log.Printf("Read S16 %d from reg 0x%0X", w, reg)
 	return w, nil
 }
 
@@ -157,7 +156,7 @@ func (this *I2C) WriteRegU16BE(reg byte, value uint16) error {
 	if err != nil {
 		return err
 	}
-	log.Printf("Write U16 %d to reg 0x%0X", value, reg)
+	//log.Printf("Write U16 %d to reg 0x%0X", value, reg)
 	return nil
 }
 
@@ -178,7 +177,7 @@ func (this *I2C) WriteRegS16BE(reg byte, value int16) error {
 	if err != nil {
 		return err
 	}
-	log.Printf("Write S16 %d to reg 0x%0X", value, reg)
+	//log.Printf("Write S16 %d to reg 0x%0X", value, reg)
 	return nil
 }
 

@@ -114,7 +114,7 @@ func (hw *HW) INIT() {
 /* Run in a LOOP, pollin gthe GPIO chip */
 func (hw *HW) ButtonPoller() {
 	for {
-		time.Sleep(2000 * time.Millisecond)
+		time.Sleep(500 * time.Millisecond)
 		hw.Lock.Lock()
 		/* IRQ status register is 7; current input is 9 */
 		irq, _ := hw.GPIO.ReadRegU8(7)

@@ -27,6 +27,7 @@ func NewCS(c *config.Config) *CalendarState {
 	var cs CalendarState
 
 	var err error
+	log.Printf("CL %v", string(c.GoogleSecret))
 	cs.config, err = google.ConfigFromJSON(c.GoogleSecret, calendar.CalendarReadonlyScope)
 
 	if err != nil {
@@ -86,5 +87,45 @@ func (cs *CalendarState) GetEvents() {
 	events, err := srv.Events.List("primary").ShowDeleted(false).
 		SingleEvents(true).TimeMin(t).MaxResults(10).OrderBy("startTime").Do()
 	log.Printf("EV: %v ERR: %v", events, err)
+}
 
+/*
+ * Find the next apointment that starts after s and before eAND has a
+ * daystar-hour between minwake and maxwake. Return the time for that
+ * apointment.
+ * If there is no such apointment, we return the zero-time
+ */
+func (cs *CalendarState) GetNextWakeup(s time.Time, e time.Time, minwake int, maxwake int) (time.Time, error) {
+	var z time.Time
+
+	/* Download apointments from google */
+	google_t := s.Format(time.RFC3339)
+	google_e := e.Format(time.RFC3339)
+	srv, err := calendar.New(cs.client)
+	events, err := srv.Events.List("primary").ShowDeleted(false).
+		SingleEvents(true).TimeMin(google_t).TimeMax(google_e).MaxResults(100).
+		OrderBy("startTime").Do()
+
+	if err != nil {
+		return z, err
+	}
+
+	/* Loop over all appointments */
+	for i := range events.Items {
+		/* Parse the start hour out of this apointment */
+		ev := events.Items[i]
+		when := ev.Start.DateTime
+		go_when, err := time.Parse(time.RFC3339, when)
+		ev_hour := go_when.Hour()
+
+		if err != nil {
+			return z, err
+		}
+		/* Does it match? Then return it. Otherwise, we'll try the next one */
+		if ev_hour >= minwake && ev_hour <= maxwake {
+			return go_when, nil
+		}
+	}
+
+	return z, nil
 }
