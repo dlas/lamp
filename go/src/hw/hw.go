@@ -85,6 +85,12 @@ func NewHW() (HWInterface, error) {
 /* Initialize the hardware */
 func (hw *HW) INIT() {
 
+	/* Set the prescaler to ~ 200 hz */
+	hw.LED.WriteRegU8(0, 16);
+	time.Sleep(10 * time.Millisecond);
+	hw.LED.WriteRegU8(254, 3);
+	time.Sleep(10 * time.Millisecond);
+
 	/* Set the mode registers of the LED driver chip.
 	 * It happens that 0 and 0 are the desiered values.
 	 */
