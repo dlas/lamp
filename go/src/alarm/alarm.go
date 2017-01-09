@@ -12,6 +12,9 @@ import "config"
 import "google"
 import "log"
 
+//import "os"
+import "os/exec"
+
 var AbortWakeUpKey int
 
 /* What do we need to manage alarms, and lights in general? */
@@ -25,6 +28,7 @@ type Alarm struct {
 	UI            UIState        // see uishim.go
 	Config        *config.Config // All our config info
 	CS            *google.CalendarState
+	Player        *exec.Cmd
 }
 
 // THis is the main initialization proceedure */
@@ -65,7 +69,7 @@ func (a *Alarm) SyncCalendarLoop() {
 		start_scan := now.Add(90 * time.Minute)
 		end_scan := start_scan.Add(24 * time.Hour)
 
-		wakeup, err := a.CS.GetNextWakeup(start_scan, end_scan, 0, 10)
+		wakeup, err := a.CS.GetNextWakeup(start_scan, end_scan, 0, 23)
 
 		if err != nil {
 			log.Printf("ERR::: %v", err)
@@ -134,17 +138,31 @@ func (self *Alarm) WakeUp() {
 		if r != &AbortWakeUpKey && r != nil {
 			panic(r)
 		}
+		if self.Player != nil {
+			self.Player.Wait()
+			self.Player = nil
+		}
 	}()
 
 	/* Slowly make the lights brighter */
 	print("DINGDINGDING")
 	for i := 0; i < 16; i++ {
+		if i == 8 {
+			self.StartMP3Player()
+		}
 		self.Checkin()
 		print("BRIGHTER!")
 		self.LEDs.SetLEDs(i, i, i)
-		time.Sleep(1 * time.Second)
+		time.Sleep(5 * time.Second)
 	}
 
+}
+
+func (self *Alarm) StartMP3Player() {
+	self.Lock.Lock()
+	self.Player = exec.Command("mplayer", "-srate", "48000", "/mnt/nfs/stuff/music1.mp3")
+	self.Player.Start()
+	self.Lock.Unlock()
 }
 
 /* Check if the alarm has been canceled and panic if it has */
@@ -162,6 +180,7 @@ func (self *Alarm) SetAlarm(wake time.Time) {
 	self.Lock.Lock()
 	defer self.Lock.Unlock()
 
+	log.Printf("Set alarm for: %v", wake)
 	self.AlarmIsSet = true
 	self.WakeUpAt = wake
 }
@@ -169,7 +188,11 @@ func (self *Alarm) SetAlarm(wake time.Time) {
 func (self *Alarm) AbortAlarmInProgress() {
 	//self.Lock.Lock();
 	//defer self.Lock.Unlock();
+	log.Printf("Abort alarm!")
 	if self.AlarmIsActive {
 		self.Aborting = true
+	}
+	if self.Player != nil && self.Player.Process != nil {
+		self.Player.Process.Kill()
 	}
 }
