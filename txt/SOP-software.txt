@@ -6,11 +6,43 @@ startup to get network access via ethernet. use DHCP logs to find IP
 address. ssh into dev as user root.
 
 Modifications:
-Add the line
+1) Add the line
 	cmdline=coherent_pool=1M quiet cape_universal=enable video=HDMI-A-1:1280x720@60e
 to /etc/uEnv.txt (replacing the old cmdline). This fixes audio issues
+
+2) Download and install GO from
+https://storage.googleapis.com/golang/go1.7.4.linux-armv6l.tar.gz
+
+3) use "go get webmain" to build
+
+4) run "install.sh" to install. It will install to /root/alarmclock
+
+5) Sign up for a google API at
+https://console.developers.google.com/flows/enableapi?apiid=calendar
+download the "client secret" information and put it in a file:
+/root/alarmclock/client_secret.json
+
+6) Set up wireless; the debian documentation is about as shit as expected.
+	use conmanctl:
+		conmanctl> tether wifi disable
+		conmanctl> enable wifi
+		conmanctl> scan wifi
+		conmanctl> connect <<<THING YOU WANNA CONNECT TO >>>
+	to figure out connection parameters. THen make a file
+	/var/lib/connman/rivendel-psk.config that looks like this:
+
+[service_wifi_08bd438a8622_726976656e64656c6c_managed_psk]
+Type = wifi
+Name = rivendel
+Passphrase = VERYSECRET!
+
+		
+
+
 
 Note, the base OS omits support for analog in (unused in this code).
 Instructions to fix are at:
 https://gist.github.com/matthewmcneely/bf44655c74096ff96475
+
+
 
