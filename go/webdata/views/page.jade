@@ -25,6 +25,24 @@ html
 			span google oauth secret
 			input(type="text" name="oath" id="oauth")
 			div(onclick="setoauth()") clickme
+		hr
+		form
+			p configuration
+			span mp3 path 
+			input(type="text" name="MP3Path" id="WakeupMP3")
+			br
+			span wakeup minutes before meeting
+			input(type="text" name="minstomeeting" id="WakeupMinsToMeeting")
+			br
+			span morning starts at
+			input(type="text" name="morningstart" id="MorningMeetingHourStart")
+			br
+			span mornign ends at
+			input(type="text" name="morningend" id="MorningMeetingHourEnd")
+			br
+			div(onclick="setconfig()") clickme
+		hr
+			input(type="text" id="AlarmAt")
 		
 			
 

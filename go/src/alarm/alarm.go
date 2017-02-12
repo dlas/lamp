@@ -142,6 +142,7 @@ func (self *Alarm) WakeUp() {
 			self.Player.Wait()
 			self.Player = nil
 		}
+		self.AlarmIsActive = false;
 	}()
 
 	/* Slowly make the lights brighter */

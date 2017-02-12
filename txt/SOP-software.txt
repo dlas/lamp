@@ -8,7 +8,7 @@ address. ssh into dev as user root.
 Modifications:
 1) Add the line
 	cmdline=coherent_pool=1M quiet cape_universal=enable video=HDMI-A-1:1280x720@60e
-to /etc/uEnv.txt (replacing the old cmdline). This fixes audio issues
+to /boot/uEnv.txt (replacing the old cmdline). This fixes audio issues
 
 2) Download and install GO from
 https://storage.googleapis.com/golang/go1.7.4.linux-armv6l.tar.gz
@@ -37,6 +37,14 @@ Name = rivendel
 Passphrase = VERYSECRET!
 
 		
+7) Disable graphical user interface on startup:
+	systemctl set-default multi-user.target
+
+8) get mplayer
+	apt update
+	apt-get install mplayer
+
+
 
 
 

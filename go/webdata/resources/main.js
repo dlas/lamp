@@ -40,3 +40,51 @@ function authlink() {
 	})
 }
 
+function getconfig() {
+	$.get("/api/config?", function(data) {
+		var p = JSON.parse(data)
+		assign(p)
+		console.log(p)
+	})
+}
+
+var GLOBAL_CONFIG_LIST;
+function assign(data) {
+	var ka = Object.keys(data);
+	GLOBAL_CONFIG_LIST = ka;
+
+	for (var i = 0; i < ka.length; i++) {
+		var key = ka[i];
+		var value = data[ka[i]];
+
+		$("#" + key).val(value);
+	}
+}
+
+function setconfig(data) {
+	var map = rassign(GLOBAL_CONFIG_LIST);
+	var url = makeurl("/api/setconfig", map);
+	$.get(url, function(data) {})
+}
+
+
+function rassign(ids) {
+	var map = {}
+	for (var i = 0; i < ids.length; i++) {
+		var key = ids[i];
+		var value = $("#" + key).val();
+		map[key] = value
+	}
+
+	return map
+
+}
+
+
+window.onload =  function() {
+
+	getconfig();
+}
+
+
+

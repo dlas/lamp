@@ -21,6 +21,18 @@ type Config struct {
 
 	/* Google OAUTH token */
 	GoogleAuth []byte
+
+	/* What MP3 to play during the alarm */
+	WakeupMP3 string
+
+	/* Howmany minute before the first meeting to we need to wake up */
+	WakeupMinsToMeeting int
+
+	/* What is the first hour of the day topay attention to */
+	MorningMeetingHourStart int
+
+	/* What is the last hour of the day to pay attention to */
+	MorningMeetingHourEnd int
 }
 
 type RGB struct {
