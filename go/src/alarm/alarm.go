@@ -142,19 +142,19 @@ func (self *Alarm) WakeUp() {
 			self.Player.Wait()
 			self.Player = nil
 		}
-		self.AlarmIsActive = false;
+		self.AlarmIsActive = false
 	}()
 
 	/* Slowly make the lights brighter */
 	print("DINGDINGDING")
-	for i := 0; i < 16; i++ {
-		if i == 8 {
+	for i := 0; i <= 100; i++ {
+		if i == 50 {
 			self.StartMP3Player()
 		}
 		self.Checkin()
 		print("BRIGHTER!")
 		self.LEDs.SetLEDs(i, i, i)
-		time.Sleep(5 * time.Second)
+		time.Sleep(2 * time.Second)
 	}
 
 }

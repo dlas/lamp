@@ -68,9 +68,9 @@ func LoadConfig() *Config {
 
 	/* That failed. Get out of here with some sensible defaults */
 	c.Presets = []RGB{
-		RGB{5, 2, 2},
-		RGB{2, 3, 6},
-		RGB{15, 15, 15},
+		RGB{100, 20, 5},
+		RGB{80, 100, 50},
+		RGB{100, 100, 100},
 	}
 
 	cs, _ := ioutil.ReadFile("client_secret.json")

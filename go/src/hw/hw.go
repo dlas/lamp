@@ -86,10 +86,10 @@ func NewHW() (HWInterface, error) {
 func (hw *HW) INIT() {
 
 	/* Set the prescaler to ~ 200 hz */
-	hw.LED.WriteRegU8(0, 16);
-	time.Sleep(10 * time.Millisecond);
-	hw.LED.WriteRegU8(254, 3);
-	time.Sleep(10 * time.Millisecond);
+	hw.LED.WriteRegU8(0, 16)
+	time.Sleep(10 * time.Millisecond)
+	hw.LED.WriteRegU8(254, 3)
+	time.Sleep(10 * time.Millisecond)
 
 	/* Set the mode registers of the LED driver chip.
 	 * It happens that 0 and 0 are the desiered values.
@@ -165,16 +165,37 @@ func (hw *HW) ReadButtons() int {
 }
 
 /* Set the illumination LEDs to any brightness.
- * TODO: use the low and high register to get more fine graned
- * control.
+ * r,g,b are intensities from 0..100 and we scale them to
+ * the PWM chips dynamic range.
  */
 func (hw *HW) SetLEDs(r, g, b int) {
 	hw.Lock.Lock()
 	defer hw.Lock.Unlock()
 
-	hw.LED.WriteRegU8(13, uint8(g))
-	hw.LED.WriteRegU8(17, uint8(b))
-	hw.LED.WriteRegU8(21, uint8(r))
+	scaled_red := r * 4095 / 100
+	scaled_green := g * 4095 / 100
+	scaled_blue := b * 4095 / 100
+
+	r_high := scaled_red >> 8
+	g_high := scaled_green >> 8
+	b_high := scaled_blue >> 8
+
+	r_low := scaled_red & 255
+	g_low := scaled_green & 255
+	b_low := scaled_blue & 255
+
+	hw.LED.WriteRegU8(13, uint8(r_high))
+	hw.LED.WriteRegU8(12, uint8(r_low))
+	hw.LED.WriteRegU8(17, uint8(g_high))
+	hw.LED.WriteRegU8(16, uint8(g_low))
+	hw.LED.WriteRegU8(21, uint8(b_high))
+	hw.LED.WriteRegU8(20, uint8(b_low))
+
+	/*
+		hw.LED.WriteRegU8(13, uint8(g))
+		hw.LED.WriteRegU8(17, uint8(b))
+		hw.LED.WriteRegU8(21, uint8(r))
+	*/
 }
 
 /* Turn one of the status LEDs on or off */
