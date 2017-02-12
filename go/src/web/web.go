@@ -10,11 +10,12 @@ import "net/http"
 import (
 	"alarm"
 	"config"
+	"encoding/json"
+	"fmt"
 	"github.com/Joker/jade"
 	"google"
 	"hw"
 	"io/ioutil"
-	"encoding/json"
 	"log"
 	"path"
 	"strconv"
@@ -47,7 +48,9 @@ func StartServer(w *WebState) {
 	sm.HandleFunc("/api/test", w.Test)
 	sm.HandleFunc("/api/getoauth", w.APIGetAuthLink)
 	sm.HandleFunc("/api/config", w.APIGetConfig)
+	sm.HandleFunc("/api/status", w.APIGetStatus)
 	sm.HandleFunc("/api/setconfig", w.APISetConfig)
+	sm.HandleFunc("/api/testalarm", w.APITestAlarm)
 
 	http.ListenAndServe(":9090", sm)
 
@@ -111,20 +114,33 @@ func (ws *WebState) APIGetAuthLink(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(u))
 }
 
-func (ws * WebState) APIGetConfig(w http.ResponseWriter, r * http.Request) {
-	j, _ := json.Marshal(ws.Config);
-	w.Write(j);
+func (ws *WebState) APIGetConfig(w http.ResponseWriter, r *http.Request) {
+	j, _ := json.Marshal(ws.Config)
+	w.Write(j)
 }
 
-func (ws * WebState) APISetConfig(w http.ResponseWriter, r * http.Request) {
-	q := r.URL.Query();
-	
-	ws.Config.WakeupMP3 = q.Get("WakeupMP3");
+func (ws *WebState) APIGetStatus(w http.ResponseWriter, r *http.Request) {
+	status := make(map[string]string)
+	status["AlarmAt"] = fmt.Sprintf("%v", ws.Alarm.WakeUpAt)
+	j, _ := json.Marshal(status)
+	w.Write(j)
+
+}
+
+func (ws *WebState) APISetConfig(w http.ResponseWriter, r *http.Request) {
+	q := r.URL.Query()
+
+	ws.Config.WakeupMP3 = q.Get("WakeupMP3")
 	ws.Config.WakeupMinsToMeeting, _ = strconv.Atoi(q.Get("WakeupMinsToMeeting"))
 	ws.Config.MorningMeetingHourStart, _ = strconv.Atoi(q.Get("MorningMeetingHourStart"))
 	ws.Config.MorningMeetingHourEnd, _ = strconv.Atoi(q.Get("MorningMeetingHourEnd"))
-	config.SaveConfig(ws.Config);
+	config.SaveConfig(ws.Config)
 
 }
 
+func (ws *WebState) APITestAlarm(w http.ResponseWriter, r *http.Request) {
 
+	ws.Alarm.TestAlarm()
+	w.Write([]byte(""))
+
+}

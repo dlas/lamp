@@ -46,6 +46,12 @@ function getconfig() {
 		assign(p)
 		console.log(p)
 	})
+
+	$.get("/api/status?", function(data) {
+		var p = JSON.parse(data);
+		$("#AlarmAt").val(p.AlarmAt)
+		console.log(p)
+	})
 }
 
 var GLOBAL_CONFIG_LIST;
@@ -80,6 +86,9 @@ function rassign(ids) {
 
 }
 
+function testalarm() {
+	$.get("/api/testalarm?", function(data) {})
+}
 
 window.onload =  function() {
 

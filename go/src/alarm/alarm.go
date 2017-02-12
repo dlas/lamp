@@ -11,6 +11,8 @@ import "sync"
 import "config"
 import "google"
 import "log"
+import "math/rand"
+import "io/ioutil"
 
 //import "os"
 import "os/exec"
@@ -159,9 +161,40 @@ func (self *Alarm) WakeUp() {
 
 }
 
+func (self *Alarm) GetMP3() string {
+
+	path := self.Config.WakeupMP3
+	files, err := ioutil.ReadDir(path)
+
+	if err != nil {
+		log.Printf("Can't read directory: %v", err)
+		return ""
+	}
+
+	mp3_files := make([]string, 0, 0)
+
+	for _, fi := range files {
+		f := fi.Name()
+
+		if len(f) > 4 &&
+			f[0] != '.' &&
+			f[len(f)-4:len(f)] == ".mp3" {
+
+			mp3_files = append(mp3_files, f)
+		}
+	}
+
+	if len(mp3_files) == 0 {
+		return ""
+	} else {
+		return path + "/" + mp3_files[rand.Int()%len(mp3_files)]
+	}
+}
+
 func (self *Alarm) StartMP3Player() {
 	self.Lock.Lock()
-	self.Player = exec.Command("mplayer", "-srate", "48000", "/mnt/nfs/stuff/music1.mp3")
+	file_to_play := self.GetMP3()
+	self.Player = exec.Command("mplayer", "-srate", "48000", file_to_play)
 	self.Player.Start()
 	self.Lock.Unlock()
 }
@@ -184,6 +217,10 @@ func (self *Alarm) SetAlarm(wake time.Time) {
 	log.Printf("Set alarm for: %v", wake)
 	self.AlarmIsSet = true
 	self.WakeUpAt = wake
+}
+
+func (self *Alarm) TestAlarm() {
+	self.SetAlarm(time.Now())
 }
 
 func (self *Alarm) AbortAlarmInProgress() {
